@@ -1,0 +1,90 @@
+/* ═══════════════════════════════════════════════════
+   WALLET CONNECT PROMPT (Web3 Gating)
+   ═══════════════════════════════════════════════════ */
+.wallet-connect-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 60px 40px;
+  max-width: 620px;
+  margin: 40px auto 80px;
+  border-radius: var(--radius);
+  background: rgba(13, 13, 26, 0.7);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 40px rgba(99, 102, 241, 0.1);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  animation: alFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.wcp-icon-wrap {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.wcp-icon-ring {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 1px solid rgba(37, 99, 235, 0.25);
+  animation: ringPulse 3s ease-in-out infinite;
+}
+
+.wcp-icon-ring-2 {
+  position: absolute;
+  inset: -18px;
+  border-radius: 50%;
+  border: 1px solid rgba(124, 58, 237, 0.12);
+  animation: ringPulse 3s ease-in-out infinite;
+  animation-delay: 1.5s;
+}
+
+.wcp-icon-core {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.2) 0%, rgba(124, 58, 237, 0.15) 100%);
+  border: 1px solid rgba(37, 99, 235, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #60a5fa;
+  box-shadow: 0 0 30px rgba(37, 99, 235, 0.25), inset 0 0 15px rgba(37, 99, 235, 0.1);
+}
+
+.wcp-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #fff 40%, #a855f7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.wcp-desc {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-width: 480px;
+  margin-bottom: 32px;
+}
+
+.wcp-button-wrap {
+  display: flex;
+  justify-content: center;
+  animation: pulseButton 2.5s ease-in-out infinite;
+}
+
+@keyframes pulseButton {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
