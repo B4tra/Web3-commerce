@@ -4,7 +4,6 @@ import { Product, Review, ReviewSummary } from '../../context/CartContext';
 
 export const dynamic = 'force-dynamic';
 
-
 export async function GET() {
   try {
     // 1. Fetch all products
@@ -12,48 +11,95 @@ export async function GET() {
       'SELECT id, title, description, price, originalPrice, currency, image, category, badge FROM products ORDER BY id ASC'
     );
 
-    const products: Product[] = [];
+    if (dbProducts.length === 0) {
+      return NextResponse.json([]);
+    }
 
-    // 2. For each product, calculate reviews aggregation and fetch recent reviews
-    for (const p of dbProducts) {
-      // Get review stats
-      const stats = await executeQuery<any[]>(
-        'SELECT COUNT(*) as total, AVG(rating) as average FROM reviews WHERE productId = ?',
-        [p.id]
-      );
-      
-      const totalReviews = stats[0]?.total || 0;
-      const averageRating = parseFloat(Number(stats[0]?.average || 0).toFixed(1));
+    const productIds = dbProducts.map((p) => p.id);
 
-      // Get rating distribution
-      const distribution = await executeQuery<any[]>(
-        'SELECT rating, COUNT(*) as count FROM reviews WHERE productId = ? GROUP BY rating',
-        [p.id]
-      );
+    // 2. Fetch review aggregates (total, average) for all products in one query
+    const statsList = await executeQuery<any[]>(
+      `SELECT productId, COUNT(*) as total, AVG(rating) as average 
+       FROM reviews 
+       WHERE productId IN (${productIds.map(() => '?').join(',')}) 
+       GROUP BY productId`,
+      productIds
+    );
 
-      const ratingDistribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-      distribution.forEach((d) => {
-        const rating = d.rating as 1 | 2 | 3 | 4 | 5;
-        if (rating >= 1 && rating <= 5) {
-          ratingDistribution[rating] = d.count;
-        }
+    // 3. Fetch rating distributions for all products in one query
+    const distributionList = await executeQuery<any[]>(
+      `SELECT productId, rating, COUNT(*) as count 
+       FROM reviews 
+       WHERE productId IN (${productIds.map(() => '?').join(',')}) 
+       GROUP BY productId, rating`,
+      productIds
+    );
+
+    // 4. Fetch top 3 recent reviews per product in one query (using Window Functions)
+    const recentReviewsList = await executeQuery<any[]>(
+      `WITH RankedReviews AS (
+         SELECT id, productId, userId, userName, rating, comment, createdAt,
+                ROW_NUMBER() OVER (PARTITION BY productId ORDER BY createdAt DESC, id DESC) as rn
+         FROM reviews
+         WHERE productId IN (${productIds.map(() => '?').join(',')})
+       )
+       SELECT id, productId, userId, userName, rating, comment, createdAt
+       FROM RankedReviews
+       WHERE rn <= 3`,
+      productIds
+    );
+
+    // Create maps for fast lookup
+    const statsMap = new Map<number, { total: number; average: number }>();
+    statsList.forEach((s) => {
+      statsMap.set(s.productId, {
+        total: s.total,
+        average: parseFloat(Number(s.average || 0).toFixed(1)),
       });
+    });
 
-      // Get 3 recent reviews (prefer user reviews over mock ones)
-      // Sorting: we can show custom reviews first, or simply order by createdAt desc
-      // Since mock reviews are prefixed with 'mock_', we can order by id (recent ones are 'rX' or user-submitted UUIDs) or createdAt desc
-      const recentReviews = await executeQuery<any[]>(
-        'SELECT id, userId, userName, rating, comment, createdAt FROM reviews WHERE productId = ? ORDER BY createdAt DESC, id DESC LIMIT 3',
-        [p.id]
-      );
+    const distMap = new Map<number, { [key: number]: number }>();
+    distributionList.forEach((d) => {
+      const pid = d.productId;
+      const rating = d.rating as 1 | 2 | 3 | 4 | 5;
+      if (!distMap.has(pid)) {
+        distMap.set(pid, { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 });
+      }
+      const dist = distMap.get(pid)!;
+      if (rating >= 1 && rating <= 5) {
+        dist[rating] = d.count;
+      }
+    });
+
+    const recentReviewsMap = new Map<number, any[]>();
+    recentReviewsList.forEach((r) => {
+      const pid = r.productId;
+      if (!recentReviewsMap.has(pid)) {
+        recentReviewsMap.set(pid, []);
+      }
+      recentReviewsMap.get(pid)!.push({
+        id: r.id,
+        userId: r.userId,
+        userName: r.userName,
+        rating: r.rating,
+        comment: r.comment,
+        createdAt: r.createdAt,
+      });
+    });
+
+    // 5. Map products with aggregated data
+    const products: Product[] = dbProducts.map((p) => {
+      const stats = statsMap.get(p.id) || { total: 0, average: 0 };
+      const ratingDistribution = distMap.get(p.id) || { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+      const recentReviews = recentReviewsMap.get(p.id) || [];
 
       const reviewSummary: ReviewSummary = {
-        averageRating,
-        totalReviews,
-        ratingDistribution,
+        averageRating: stats.average,
+        totalReviews: stats.total,
+        ratingDistribution: ratingDistribution as any,
       };
 
-      const mappedProduct: Product = {
+      return {
         id: p.id,
         title: p.title,
         description: p.description,
@@ -64,18 +110,9 @@ export async function GET() {
         category: p.category,
         badge: p.badge || undefined,
         reviewSummary,
-        recentReviews: recentReviews.map((r) => ({
-          id: r.id,
-          userId: r.userId,
-          userName: r.userName,
-          rating: r.rating,
-          comment: r.comment,
-          createdAt: r.createdAt,
-        })),
+        recentReviews,
       };
-
-      products.push(mappedProduct);
-    }
+    });
 
     return NextResponse.json(products);
   } catch (error) {

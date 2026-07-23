@@ -1,11 +1,11 @@
 /* ═══════════════════════════════════════════════════
-   FOOTER
+   FOOTER (SCI-FI SPECIFICATION)
    ═══════════════════════════════════════════════════ */
 .site-footer {
-  padding: 48px 24px;
+  padding: 40px 24px;
   border-top: 1px solid var(--border-color);
   text-align: center;
-  background: rgba(6, 6, 14, 0.5);
+  background: var(--bg-secondary);
 }
 
 .footer-content {
@@ -22,9 +22,11 @@
 }
 
 .footer-text {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
   margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .footer-links {
@@ -35,12 +37,14 @@
 }
 
 .footer-links a {
-  font-size: 0.82rem;
+  font-size: 0.72rem;
   color: var(--text-secondary);
   text-decoration: none;
   transition: var(--transition-fast);
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .footer-links a:hover {
-  color: var(--accent-secondary);
+  color: #ffffff;
 }

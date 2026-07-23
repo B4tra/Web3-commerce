@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { executeQuery } from '../../../lib/db';
 import { cookies } from 'next/headers';
+import { verifyToken } from '../../../lib/auth';
 
 // Helper function untuk validasi sesi admin secara aman di sisi server
 async function validateAdminSession(): Promise<boolean> {
@@ -12,10 +13,10 @@ async function validateAdminSession(): Promise<boolean> {
       return false;
     }
 
-    const decoded = JSON.parse(Buffer.from(sessionCookie.value, 'base64').toString('utf-8'));
     const sessionSecret = process.env.ADMIN_SESSION_SECRET || 'fallback-secret';
+    const decoded = await verifyToken(sessionCookie.value, sessionSecret);
 
-    return decoded.role === 'admin' && decoded.secret === sessionSecret;
+    return decoded && decoded.role === 'admin';
   } catch (e) {
     return false;
   }

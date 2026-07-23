@@ -14,6 +14,7 @@ interface AdminReview {
   comment: string;
   createdAt: string;
   productTitle: string;
+  txHash?: string | null;
 }
 
 export default function AdminReviewsPage() {
@@ -85,7 +86,8 @@ export default function AdminReviewsPage() {
     const matchesSearch =
       r.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       r.comment.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      r.productTitle.toLowerCase().includes(searchTerm.toLowerCase());
+      r.productTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (r.txHash && r.txHash.toLowerCase().includes(searchTerm.toLowerCase()));
 
     const matchesRating = ratingFilter === 'all' || r.rating === ratingFilter;
 
@@ -279,6 +281,7 @@ export default function AdminReviewsPage() {
                       <th>Produk</th>
                       <th>Rating</th>
                       <th className="th-comment">Komentar/Ulasan</th>
+                      <th>Tx Hash</th>
                       <th>Tanggal Kirim</th>
                       <th>Aksi</th>
                     </tr>
@@ -314,6 +317,35 @@ export default function AdminReviewsPage() {
                         </td>
                         <td className="td-comment">
                           <p className="admin-comment-text">{r.comment}</p>
+                        </td>
+                        <td>
+                          {r.txHash ? (
+                            <a
+                              href={`https://sepolia.etherscan.io/tx/${r.txHash}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="admin-tx-badge"
+                              title={r.txHash}
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                padding: '3px 8px',
+                                background: 'rgba(59, 130, 246, 0.12)',
+                                border: '1px solid rgba(59, 130, 246, 0.3)',
+                                borderRadius: '4px',
+                                color: '#60a5fa',
+                                fontSize: '0.75rem',
+                                fontFamily: 'monospace',
+                                textDecoration: 'none',
+                                fontWeight: 600,
+                              }}
+                            >
+                              {r.txHash.slice(0, 6)}...{r.txHash.slice(-4)} ↗
+                            </a>
+                          ) : (
+                            <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Off-chain</span>
+                          )}
                         </td>
                         <td>
                           <span className="admin-date">{formatDate(r.createdAt)}</span>

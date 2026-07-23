@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { Product, useCart } from '../context/CartContext';
 import { useQueryClient } from '@tanstack/react-query';
+import { useAccount } from 'wagmi';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
 
 interface ProductCardProps {
   product: Product;
@@ -12,6 +14,8 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   const { addToCart, isInCart, setIsCartOpen } = useCart();
   const queryClient = useQueryClient();
+  const { isConnected, address } = useAccount();
+  const { openConnectModal } = useConnectModal();
 
   const [isHovered, setIsHovered] = useState(false);
   const [addedAnimation, setAddedAnimation] = useState(false);
@@ -27,12 +31,28 @@ export default function ProductCard({ product }: ProductCardProps) {
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
   const handleAddToCart = () => {
+    if (!isConnected) {
+      if (openConnectModal) {
+        openConnectModal();
+      } else {
+        alert('Mohon hubungkan dompet (wallet) Anda terlebih dahulu di bagian atas halaman.');
+      }
+      return;
+    }
     addToCart(product);
     setAddedAnimation(true);
     setTimeout(() => setAddedAnimation(false), 1200);
   };
 
   const handleBuyNow = () => {
+    if (!isConnected) {
+      if (openConnectModal) {
+        openConnectModal();
+      } else {
+        alert('Mohon hubungkan dompet (wallet) Anda terlebih dahulu di bagian atas halaman.');
+      }
+      return;
+    }
     addToCart(product);
     setIsCartOpen(true);
   };
@@ -54,6 +74,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           userName,
           rating: userRating,
           comment,
+          walletAddress: address,
         }),
       });
 
@@ -224,6 +245,14 @@ export default function ProductCard({ product }: ProductCardProps) {
               className={`btn-write-review ${showReviewForm ? 'active' : ''}`}
               onClick={(e) => {
                 e.stopPropagation();
+                if (!isConnected) {
+                  if (openConnectModal) {
+                    openConnectModal();
+                  } else {
+                    alert('Mohon hubungkan dompet (wallet) Anda terlebih dahulu untuk menulis ulasan.');
+                  }
+                  return;
+                }
                 setShowReviewForm(!showReviewForm);
                 setSubmitSuccess(false);
                 setSubmitError('');

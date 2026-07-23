@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
 export interface Review {
   id: string;
@@ -59,6 +59,28 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+
+  // Load keranjang dari localStorage saat client-side mount pertama kali
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('bstore_cart');
+      if (stored) {
+        setItems(JSON.parse(stored));
+      }
+    } catch (e) {
+      console.error('Gagal memuat keranjang dari localStorage:', e);
+    }
+  }, []);
+
+  // Simpan keranjang ke localStorage setiap kali ada perubahan items
+  useEffect(() => {
+    try {
+      // Hanya simpan jika state items sudah terinisialisasi di sisi client
+      localStorage.setItem('bstore_cart', JSON.stringify(items));
+    } catch (e) {
+      console.error('Gagal menyimpan keranjang ke localStorage:', e);
+    }
+  }, [items]);
 
   const addToCart = useCallback((product: Product) => {
     setItems((prev) => {

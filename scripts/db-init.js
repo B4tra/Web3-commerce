@@ -223,8 +223,9 @@ async function main() {
       userName VARCHAR(100) NOT NULL,
       rating INT NOT NULL,
       comment TEXT NOT NULL,
-      createdAt VARCHAR(50) NOT NULL,
-      FOREIGN KEY (productId) REFERENCES products(id) ON DELETE CASCADE
+      createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (productId) REFERENCES products(id) ON DELETE CASCADE,
+      INDEX idx_reviews_product_created (productId, createdAt DESC)
     )
   `);
 

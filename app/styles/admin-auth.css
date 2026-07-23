@@ -1471,3 +1471,111 @@
     padding: 28px 20px 24px;
   }
 }
+
+/* ═══════════════════════════════════════════════════
+   SCI-FI AUTH OVERRIDES (APPENDED)
+   ═══════════════════════════════════════════════════ */
+.al-grid, .ar-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px) !important;
+}
+
+.al-left, .ar-left {
+  background: var(--bg-secondary) !important;
+  border-right: 1px solid var(--border-color) !important;
+}
+
+.al-brand-icon, .ar-brand-icon {
+  background: transparent !important;
+  border: 1px solid #ffffff !important;
+  border-radius: 0px !important;
+  box-shadow: none !important;
+}
+
+.al-brand-badge, .ar-brand-badge, .al-hero-pill, .ar-hero-pill {
+  border-radius: 0px !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid var(--border-color) !important;
+  color: #ffffff !important;
+}
+
+.al-feature-card, .ar-step-card {
+  border-radius: 0px !important;
+  border: 1px solid var(--border-color) !important;
+  background: var(--bg-card) !important;
+}
+
+.al-feature-card:hover, .ar-step-card:hover {
+  border-color: #ffffff !important;
+  background: var(--bg-card-hover) !important;
+}
+
+.al-feature-icon, .ar-step-num {
+  border-radius: 0px !important;
+  background: transparent !important;
+  border: 1px solid var(--border-color) !important;
+  color: #ffffff !important;
+}
+
+.al-shield-ring, .ar-shield-ring {
+  border-radius: 0px !important;
+  border: 1px dashed var(--border-color) !important;
+}
+
+.al-shield-core, .ar-shield-core {
+  border-radius: 0px !important;
+  background: transparent !important;
+  border: 1px solid #ffffff !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.al-form-card, .ar-form-card {
+  border-radius: 0px !important;
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+.al-input, .ar-input {
+  border-radius: 0px !important;
+  border: 1px solid var(--border-color) !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+}
+
+.al-input:focus, .ar-input:focus {
+  border-color: #ffffff !important;
+  box-shadow: none !important;
+  background: rgba(0, 0, 0, 0.6) !important;
+}
+
+.al-submit-btn, .ar-submit-btn {
+  border-radius: 0px !important;
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #ffffff !important;
+  box-shadow: none !important;
+  text-transform: uppercase;
+}
+
+.al-submit-btn:hover:not(:disabled), .ar-submit-btn:hover:not(:disabled) {
+  background: transparent !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.al-register-btn, .ar-login-link {
+  border-radius: 0px !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-secondary) !important;
+  background: transparent !important;
+  text-transform: uppercase;
+}
+
+.al-register-btn:hover, .ar-login-link:hover {
+  border-color: #ffffff !important;
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  box-shadow: none !important;
+}

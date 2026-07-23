@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { verifyToken } from './app/lib/auth';
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // 1. Redirect /admin atau /admin/
@@ -9,15 +10,15 @@ export function proxy(request: NextRequest) {
     const session = request.cookies.get('admin_session');
     if (session && session.value) {
       try {
-        const decoded = JSON.parse(Buffer.from(session.value, 'base64').toString('utf-8'));
         const sessionSecret = process.env.ADMIN_SESSION_SECRET || 'fallback-secret';
+        const decoded = await verifyToken(session.value, sessionSecret);
 
-        if (decoded.role === 'admin' && decoded.secret === sessionSecret) {
+        if (decoded && decoded.role === 'admin') {
           // Jika sudah login, lempar langsung ke halaman kelola ulasan
           return NextResponse.redirect(new URL('/admin/reviews', request.url));
         }
       } catch {
-        // Abaikan dan biarkan redirect ke login
+        // Abaikan
       }
     }
     // Jika belum login, alihkan ke /admin/login
@@ -29,10 +30,10 @@ export function proxy(request: NextRequest) {
     const session = request.cookies.get('admin_session');
     if (session && session.value) {
       try {
-        const decoded = JSON.parse(Buffer.from(session.value, 'base64').toString('utf-8'));
         const sessionSecret = process.env.ADMIN_SESSION_SECRET || 'fallback-secret';
+        const decoded = await verifyToken(session.value, sessionSecret);
 
-        if (decoded.role === 'admin' && decoded.secret === sessionSecret) {
+        if (decoded && decoded.role === 'admin') {
           // Jika sudah login admin, alihkan otomatis ke reviews
           return NextResponse.redirect(new URL('/admin/reviews', request.url));
         }
@@ -58,10 +59,10 @@ export function proxy(request: NextRequest) {
     }
 
     try {
-      const decoded = JSON.parse(Buffer.from(session.value, 'base64').toString('utf-8'));
       const sessionSecret = process.env.ADMIN_SESSION_SECRET || 'fallback-secret';
+      const decoded = await verifyToken(session.value, sessionSecret);
 
-      if (decoded.role !== 'admin' || decoded.secret !== sessionSecret) {
+      if (!decoded || decoded.role !== 'admin') {
         const loginUrl = new URL('/admin/login', request.url);
         return NextResponse.redirect(loginUrl);
       }
@@ -75,6 +76,6 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Menjalankan proxy untuk semua rute di bawah /admin
+  // Menjalankan middleware untuk semua rute di bawah /admin
   matcher: ['/admin/:path*'],
 };

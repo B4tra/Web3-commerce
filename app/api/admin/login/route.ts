@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { executeQuery } from '../../../lib/db';
+import { signToken } from '../../../lib/auth';
 
 export async function POST(request: Request) {
   try {
@@ -53,15 +54,15 @@ export async function POST(request: Request) {
 
     // Build session token
     const sessionSecret = process.env.ADMIN_SESSION_SECRET || 'fallback-secret';
-    const payload = Buffer.from(
-      JSON.stringify({
+    const payload = await signToken(
+      {
         role: user.role || 'admin',
         username: user.username,
         adminId: user.id,
         ts: Date.now(),
-        secret: sessionSecret,
-      })
-    ).toString('base64');
+      },
+      sessionSecret
+    );
 
     const response = NextResponse.json({ success: true, message: 'Login berhasil' });
 

@@ -17,10 +17,8 @@ export default function ProductsPage() {
     setMounted(true);
   }, []);
 
-  const { isConnected } = useAccount();
-
   // Fetch products from database API using React Query
-  // Hanya ambil data ketika dompet sudah terhubung untuk keamanan & efisiensi
+  // Diaktifkan segera setelah component dimuat di sisi klien agar crawler SEO dapat mengindeks katalog produk
   const { data: products = [], isLoading, error, refetch } = useQuery<Product[]>({
     queryKey: ['products'],
     queryFn: async () => {
@@ -30,7 +28,7 @@ export default function ProductsPage() {
       }
       return res.json();
     },
-    enabled: mounted && isConnected,
+    enabled: mounted,
   });
 
   const filteredProducts =
@@ -45,26 +43,11 @@ export default function ProductsPage() {
         <div className="section-header">
           <div className="section-label">Koleksi Digital</div>
           <h2 className="section-title">Produk Unggulan Kami</h2>
-          <p className="section-subtitle">Memeriksa status koneksi...</p>
+          <p className="section-subtitle">Memuat katalog...</p>
         </div>
         <div className="admin-loading-container" style={{ padding: '60px 20px' }}>
           <div className="spinner-large" />
         </div>
-      </section>
-    );
-  }
-
-  // Jika dompet belum terhubung, tampilkan prompt penghubung
-  if (!isConnected) {
-    return (
-      <section className="products-section" id="products">
-        <div className="section-header">
-          <h2 className="section-title">Connect Wallet</h2>
-          <p className="section-subtitle">
-            Please connect your wallet to access premium digital products.
-          </p>
-        </div>
-
       </section>
     );
   }
@@ -88,7 +71,7 @@ export default function ProductsPage() {
             onClick={() => setActiveCategory(cat)}
             id={`filter-${cat.toLowerCase()}`}
           >
-            {cat === 'Semua' ? '🔥 Semua' : cat === 'E-Book' ? '📚 E-Book' : '🎨 Template'}
+            {cat === 'Semua' ? 'All' : cat === 'E-Book' ? 'E-Book' : 'Template'}
           </button>
         ))}
       </div>
