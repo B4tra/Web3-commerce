@@ -7,16 +7,7 @@ import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagm
 import { parseUnits } from 'viem';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 
-// Pemetaan alamat smart contract token USDT per jaringan blockchain
-const USDT_ADDRESSES: Record<number, `0x${string}`> = {
-  1: '0xdAC17F958D2ee523a2206206994597C13D831ec7',      // Ethereum Mainnet
-  137: '0xc2132D05D31c914a87C6611C10748AEb04B58e8F',    // Polygon
-  10: '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58',     // Optimism
-  42161: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',  // Arbitrum
-  56: '0x55d398326f99059fF775485246999027B3197955',     // BSC (USDT)
-  11155111: '0x6b25442abad6c9a19616d8e5e1b6b7c3a772dc23', // Sepolia Testnet MockUSDT (Lowercase)
-  11155420: '0x6b25442abad6c9a19616d8e5e1b6b7c3a772dc23', // Optimism Sepolia MockUSDT (Lowercase)
-};
+import { USDT_ADDRESSES } from '../config/web3';
 
 // Pemetaan alamat smart contract token USDC per jaringan blockchain
 const USDC_ADDRESSES: Record<number, `0x${string}`> = {

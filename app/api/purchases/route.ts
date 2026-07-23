@@ -5,14 +5,13 @@ import { createPublicClient, http } from 'viem';
 import { sepolia } from 'viem/chains';
 import crypto from 'crypto';
 
+import { MERCHANT_ADDRESS, SEPOLIA_RPC_URL } from '../../config/web3';
+
 // Inisialisasi koneksi ke Blockchain Sepolia untuk memverifikasi transaksi
 const client = createPublicClient({
   chain: sepolia,
-  transport: http('https://rpc.ankr.com/eth_sepolia'), // RPC gratis Sepolia
+  transport: http(SEPOLIA_RPC_URL),
 });
-
-// Alamat Merchant / Penerima Pembayaran Toko Anda (huruf kecil semua)
-const MERCHANT_ADDRESS = '0x71C7656EC7ab88b098defB751B7401B5f6d8976F'.toLowerCase();
 
 async function ensurePurchasesTable() {
   await executeQuery(`
@@ -26,13 +25,6 @@ async function ensurePurchasesTable() {
       UNIQUE KEY unique_purchase (productId, walletAddress)
     )
   `);
-
-  // Pastikan kolom txHash ditambahkan jika tabel purchases dibuat dengan struktur lama
-  try {
-    await executeQuery(`ALTER TABLE purchases ADD COLUMN txHash VARCHAR(100) NULL`);
-  } catch (err) {
-    // Abaikan error jika kolom txHash sudah ada
-  }
 }
 
 export async function POST(request: Request) {
