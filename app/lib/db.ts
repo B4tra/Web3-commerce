@@ -13,6 +13,11 @@ const pool =
     user: process.env.DATABASE_USER || process.env.DB_USER || 'root',
     password: process.env.DATABASE_PASSWORD || process.env.DB_PASSWORD || '',
     database: process.env.DATABASE_NAME || process.env.DB_NAME || 'my_ebook_store',
+    ssl:
+      process.env.DATABASE_SSL === 'true' ||
+      (process.env.DATABASE_HOST && process.env.DATABASE_HOST.includes('aivencloud.com'))
+        ? { rejectUnauthorized: false }
+        : undefined,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,

@@ -188,11 +188,18 @@ const initialProducts = [
 
 async function main() {
   console.log(`Menghubungkan ke MySQL di ${dbHost}:${dbPort}...`);
+  const sslConfig =
+    process.env.DATABASE_SSL === 'true' ||
+    dbHost.includes('aivencloud.com')
+      ? { rejectUnauthorized: false }
+      : undefined;
+
   const connection = await mysql.createConnection({
     host: dbHost,
     port: dbPort,
     user: dbUser,
     password: dbPassword,
+    ssl: sslConfig,
   });
 
   console.log(`Membuat database '${dbName}' jika belum ada...`);
@@ -254,11 +261,16 @@ async function main() {
   for (const p of initialProducts) {
     const [existingReviews] = await connection.query('SELECT id FROM reviews WHERE productId = ?', [p.id]);
     if (existingReviews.length === 0) {
+      // Helper format date untuk MySQL DATETIME
+      const formatMySqlDate = (dateStr) => {
+        return new Date(dateStr).toISOString().slice(0, 19).replace('T', ' ');
+      };
+
       // 1. Tambah recent reviews asli
       for (const r of p.recentReviews) {
         await connection.query(
           'INSERT INTO reviews (id, productId, userId, userName, rating, comment, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)',
-          [r.id, p.id, r.userId, r.userName, r.rating, r.comment, r.createdAt]
+          [r.id, p.id, r.userId, r.userName, r.rating, r.comment, formatMySqlDate(r.createdAt)]
         );
         reviewCount++;
       }
@@ -281,7 +293,8 @@ async function main() {
           const userName = `Pembeli ${mockIdCounter}`;
           const comment = `Produk ${p.title} ini luar biasa. Sangat direkomendasikan untuk dibeli!`;
           // Date random dalam sebulan terakhir
-          const date = new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString();
+          const rawDate = new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000);
+          const date = formatMySqlDate(rawDate);
           
           await connection.query(
             'INSERT INTO reviews (id, productId, userId, userName, rating, comment, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)',
