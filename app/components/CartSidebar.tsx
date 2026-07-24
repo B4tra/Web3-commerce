@@ -7,16 +7,7 @@ import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagm
 import { parseUnits } from 'viem';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 
-import { USDT_ADDRESSES } from '../config/web3';
-
-// Pemetaan alamat smart contract token USDC per jaringan blockchain
-const USDC_ADDRESSES: Record<number, `0x${string}`> = {
-  1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',      // Ethereum Mainnet
-  137: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',    // Polygon (USDC.e)
-  10: '0x0b2C639c533813f4Aa9d7837CAf62653d097Ff85',     // Optimism
-  42161: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',  // Arbitrum
-  56: '0x8AC76a51cc950d9822D68b83fE1Ad97B32CD580d',     // BSC
-};
+import { USDT_ADDRESSES, USDC_ADDRESSES, MERCHANT_ADDRESS } from '../config/web3';
 
 const ERC20_ABI = [
   {
@@ -30,9 +21,6 @@ const ERC20_ABI = [
     outputs: [{ name: '', type: 'boolean' }],
   },
 ] as const;
-
-// Alamat dompet toko / merchant penerima pembayaran
-const MERCHANT_ADDRESS = (process.env.NEXT_PUBLIC_MERCHANT_ADDRESS || '0x71C7656EC7ab88b098defB751B7401B5f6d8976F') as `0x${string}`;
 
 export default function CartSidebar() {
   const {
@@ -70,12 +58,24 @@ export default function CartSidebar() {
     };
   }, [isCartOpen]);
 
+  const [successData, setSuccessData] = useState<{
+    productId: number;
+    walletAddress: string;
+    txHash: string;
+    productTitle: string;
+  } | null>(null);
+
   // Efek setelah transaksi blockchain berhasil dikonfirmasi
   useEffect(() => {
     const savePurchases = async () => {
       if (isTxSuccess && address && items.length > 0 && hash) {
         const firstItem = items[0];
         const userAddress = address;
+
+        // 1. Langsung tutup cart sidebar & kosongkan keranjang
+        setIsCartOpen(false);
+        clearCart();
+        setCheckoutError(null);
 
         try {
           const responses = await Promise.all(
@@ -94,31 +94,34 @@ export default function CartSidebar() {
             )
           );
 
-          // Cek apakah ada respon error dari server
           const failed = responses.find((res) => !res.ok);
           if (failed) {
             console.error('Beberapa entri pembelian gagal dicatat:', await failed.json());
           }
-
-          alert(`✓ Pembayaran Berhasil! Transaksi Anda (${hash.slice(0, 10)}...) telah dikonfirmasi oleh blockchain. Mengunduh e-book Anda...`);
-
-          // Clear cart terlebih dahulu sebelum mengarahkan ke download
-          clearCart();
-          setIsCartOpen(false);
-          setCheckoutError(null);
-
-          // Otomatis mengunduh e-book yang dibeli
-          window.location.href = `/api/download?productId=${firstItem.id}&walletAddress=${userAddress}`;
         } catch (error) {
           console.error('Failed to record purchases in DB:', error);
-          clearCart();
-          setIsCartOpen(false);
         }
+
+        // 2. Tampilkan Center Success Modal interaktif
+        setSuccessData({
+          productId: firstItem.id,
+          walletAddress: userAddress,
+          txHash: hash,
+          productTitle: firstItem.title,
+        });
       }
     };
 
     savePurchases();
   }, [isTxSuccess, address, items, hash, clearCart, setIsCartOpen]);
+
+  const handleDownloadAndClose = () => {
+    if (successData) {
+      const downloadUrl = `/api/download?productId=${successData.productId}&walletAddress=${successData.walletAddress}`;
+      setSuccessData(null);
+      window.location.href = downloadUrl;
+    }
+  };
 
   const handleCheckout = async () => {
     setCheckoutError(null);
@@ -145,13 +148,12 @@ export default function CartSidebar() {
     const tokenAddress = tokenAddresses[chain.id];
 
     if (!tokenAddress) {
-      setCheckoutError(`Pembayaran dengan ${currency} belum didukung di jaringan ${chain.name}. Silakan ganti jaringan wallet Anda ke Ethereum Mainnet, Polygon, BSC, Arbitrum, atau Optimism.`);
+      setCheckoutError(`Pembayaran dengan ${currency} belum didukung di jaringan ${chain.name}. Silakan ganti jaringan wallet Anda ke Sepolia Testnet.`);
       return;
     }
 
-    // Set desimal token. Di BSC (chain 56), USDT dan USDC menggunakan 18 desimal.
-    // Di Ethereum, Polygon, Arbitrum, dan Optimism, USDT/USDC menggunakan 6 desimal.
-    const decimals = chain.id === 56 ? 18 : 6;
+    // Seluruh token testnet MockUSDT di Sepolia Testnet menggunakan 6 desimal
+    const decimals = 6;
     const amountInUnits = parseUnits(totalPrice.toFixed(2), decimals);
 
     try {
@@ -309,6 +311,100 @@ export default function CartSidebar() {
           </div>
         )}
       </aside>
+
+      {/* Center Success Modal Interaktif */}
+      {successData && (
+        <div className="cart-backdrop cart-backdrop-visible" style={{ zIndex: 300, backdropFilter: 'blur(8px)' }}>
+          <div
+            style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 301,
+              width: '90%',
+              maxWidth: '440px',
+              padding: '32px 24px',
+              background: '#0a0a0f',
+              border: '1px solid rgba(59, 130, 246, 0.4)',
+              borderRadius: '16px',
+              boxShadow: '0 20px 50px rgba(0, 0, 0, 0.9), 0 0 30px rgba(59, 130, 246, 0.2)',
+              textAlign: 'center',
+            }}
+          >
+            <div
+              style={{
+                width: '64px',
+                height: '64px',
+                borderRadius: '50%',
+                background: 'rgba(34, 197, 94, 0.15)',
+                border: '1px solid rgba(34, 197, 94, 0.4)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 16px auto',
+                color: '#4ade80',
+                fontSize: '2rem',
+                boxShadow: '0 0 20px rgba(34, 197, 94, 0.3)',
+              }}
+            >
+              ✓
+            </div>
+
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#ffffff', marginBottom: '8px', letterSpacing: '0.5px' }}>
+              Pembayaran Berhasil!
+            </h3>
+
+            <p style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '16px', lineHeight: 1.5 }}>
+              Transaksi Web3 Anda telah dikonfirmasi oleh blockchain. E-book <strong>{successData.productTitle}</strong> siap diunduh.
+            </p>
+
+            <div
+              style={{
+                padding: '12px',
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '8px',
+                marginBottom: '20px',
+                fontSize: '0.78rem',
+                color: '#cbd5e1',
+              }}
+            >
+              <div style={{ marginBottom: '4px', color: '#64748b' }}>TRANSACTION HASH:</div>
+              <a
+                href={`https://sepolia.etherscan.io/tx/${successData.txHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: '#60a5fa', fontFamily: 'monospace', textDecoration: 'none', fontWeight: 600 }}
+              >
+                {successData.txHash.slice(0, 10)}...{successData.txHash.slice(-8)} ↗
+              </a>
+            </div>
+
+            <button
+              onClick={handleDownloadAndClose}
+              id="success-download-btn"
+              style={{
+                width: '100%',
+                padding: '14px',
+                background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                border: 'none',
+                borderRadius: '8px',
+                color: '#ffffff',
+                fontSize: '0.9rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                letterSpacing: '0.5px',
+                textTransform: 'uppercase',
+                boxShadow: '0 4px 15px rgba(34, 197, 94, 0.4)',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              OK — UNDUH E-BOOK SEKARANG
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

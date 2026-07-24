@@ -13,7 +13,7 @@
 
 ## 🌟 Mengapa BStore Unik? (Key Highlights)
 
-* **🌐 Multi-Chain Web3 Payments:** Pembayaran instan menggunakan stablecoin (USDT / USDC) di Ethereum Mainnet, Sepolia Testnet, Polygon, Arbitrum, Optimism, dan BSC.
+* **🌐 Multi-Chain Web3 Testnet Payments:** Pembayaran instan menggunakan stablecoin (USDT / USDC) di jaringan Ethereum Sepolia Testnet & OP Sepolia Testnet (aman untuk pengujian tanpa risiko dana riil).
 * **🛡️ Fraud-Proof On-Chain Verification:** Backend memverifikasi tanda tangan transaksi (*txHash*) secara real-time langsung ke node blockchain sebelum memberikan akses unduhan.
 * **🔒 Protected E-Book Streaming System:** File fisik PDF disimpan di folder privat terisolasi (di luar `/public`) dan di-stream secara aman hanya untuk dompet terverifikasi di MySQL database.
 * **⚙️ Interactive Admin Dashboard:** Dilengkapi dengan analisis ulasan, manajemen produk, dan badge *Transaction Hash* yang langsung terhubung ke **Etherscan**.

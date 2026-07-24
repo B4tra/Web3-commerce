@@ -583,6 +583,22 @@
   margin-left: 2px;
 }
 
+.price-discount-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 8px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  margin-left: 6px;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
 /* Action Buttons */
 .product-actions {
   display: flex;

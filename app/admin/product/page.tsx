@@ -31,7 +31,7 @@ export default function AdminProductPage() {
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [originalPrice, setOriginalPrice] = useState('');
-  const [currency, setCurrency] = useState<'USDT' | 'USDC'>('USDT');
+  const currency = 'USDT';
   const [category, setCategory] = useState<'E-Book' | 'Template'>('E-Book');
   const [badge, setBadge] = useState('');
   
@@ -211,7 +211,6 @@ export default function AdminProductPage() {
     setDescription(product.description);
     setPrice(product.price.toString());
     setOriginalPrice(product.originalPrice ? product.originalPrice.toString() : '');
-    setCurrency(product.currency);
     setCategory(product.category as 'E-Book' | 'Template');
     setBadge(product.badge || '');
 
@@ -385,29 +384,52 @@ export default function AdminProductPage() {
             {/* Currency */}
             <div className="admin-input-group">
               <label className="admin-form-label">Tipe Crypto Pembayaran *</label>
-              <div className="crypto-radio-group">
-                <label className="crypto-radio-label">
-                  <input
-                    type="radio"
-                    name="currency"
-                    className="crypto-radio-input"
-                    checked={currency === 'USDT'}
-                    onChange={() => setCurrency('USDT')}
-                    disabled={isMutationPending}
-                  />
-                  USDT (₮)
-                </label>
-                <label className="crypto-radio-label">
-                  <input
-                    type="radio"
-                    name="currency"
-                    className="crypto-radio-input"
-                    checked={currency === 'USDC'}
-                    onChange={() => setCurrency('USDC')}
-                    disabled={isMutationPending}
-                  />
-                  USDC ($)
-                </label>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  padding: '11px 14px',
+                  background: 'rgba(255, 255, 255, 0.03)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '8px',
+                  color: '#ffffff',
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                }}
+              >
+                <span
+                  style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    background: 'rgba(38, 161, 123, 0.2)',
+                    color: '#26A17B',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '0.85rem',
+                    fontWeight: 800,
+                  }}
+                >
+                  ₮
+                </span>
+                <span>USDT (Tether)</span>
+                <span
+                  style={{
+                    marginLeft: 'auto',
+                    fontSize: '0.68rem',
+                    padding: '3px 8px',
+                    borderRadius: '4px',
+                    background: 'rgba(38, 161, 123, 0.15)',
+                    color: '#26A17B',
+                    border: '1px solid rgba(38, 161, 123, 0.3)',
+                    letterSpacing: '0.5px',
+                    fontWeight: 700,
+                  }}
+                >
+                  STANDAR DEFAULT
+                </span>
               </div>
             </div>
 
@@ -623,12 +645,12 @@ export default function AdminProductPage() {
                       </p>
                     </td>
                     <td>
-                      <span className="price-currency-tag" style={{ background: p.currency === 'USDT' ? 'rgba(38,161,123,0.12)' : 'rgba(37,99,235,0.12)', color: p.currency === 'USDT' ? '#26A17B' : '#3b82f6', border: 'none', padding: '3px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700 }}>
-                        {p.price.toFixed(2)} {p.currency}
+                      <span className="price-currency-tag" style={{ background: 'rgba(38,161,123,0.12)', color: '#26A17B', border: 'none', padding: '3px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700 }}>
+                        {p.price.toFixed(2)} USDT
                       </span>
                       {p.originalPrice && (
                         <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textDecoration: 'line-through', marginTop: '2px' }}>
-                          {p.originalPrice.toFixed(2)} {p.currency}
+                          {p.originalPrice.toFixed(2)} USDT
                         </div>
                       )}
                     </td>

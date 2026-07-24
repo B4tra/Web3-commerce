@@ -135,11 +135,6 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="product-badge">{product.badge}</div>
       )}
 
-      {/* Discount Tag */}
-      {discount > 0 && (
-        <div className="product-discount">-{discount}%</div>
-      )}
-
       {/* Image Container */}
       <div className="product-image-container">
         <Image
@@ -354,7 +349,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           </form>
         )}
 
-        {/* Price — USDT / USDC */}
+        {/* Price — USDT */}
         <div className="product-price-row">
           <div className="price-group">
             <span className="price-currency-icon">{product.currency === 'USDT' ? '₮' : '$'}</span>
@@ -362,6 +357,9 @@ export default function ProductCard({ product }: ProductCardProps) {
             <span className="price-currency-tag">{product.currency}</span>
             {product.originalPrice && (
               <span className="price-original">{formatPrice(product.originalPrice)} {product.currency}</span>
+            )}
+            {discount > 0 && (
+              <span className="price-discount-badge">-{discount}%</span>
             )}
           </div>
         </div>

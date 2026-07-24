@@ -29,7 +29,7 @@ export interface Product {
   description: string;
   price: number;           // harga dalam USDT
   originalPrice?: number;  // harga asli dalam USDT (untuk diskon)
-  currency: 'USDT' | 'USDC';
+  currency: 'USDT';
   image: string;
   category: string;
   badge?: string;
