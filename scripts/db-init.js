@@ -249,6 +249,20 @@ async function main() {
     )
   `);
 
+  console.log('Membuat tabel `admin_users`...');
+  await connection.query(`
+    CREATE TABLE IF NOT EXISTS admin_users (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      username VARCHAR(50) UNIQUE NOT NULL,
+      email VARCHAR(255) UNIQUE NOT NULL,
+      password_hash VARCHAR(255) NOT NULL,
+      role VARCHAR(20) NOT NULL DEFAULT 'admin',
+      is_active TINYINT(1) NOT NULL DEFAULT 1,
+      last_login DATETIME NULL,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
   // Seeding Products
   console.log('Memasukkan data produk...');
   for (const p of initialProducts) {

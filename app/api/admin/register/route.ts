@@ -6,9 +6,30 @@ export const dynamic = 'force-dynamic';
 
 interface ExistingRow { id: number }
 
+async function ensureAdminUsersTable() {
+  try {
+    await executeQuery(`
+      CREATE TABLE IF NOT EXISTS admin_users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(50) UNIQUE NOT NULL,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password_hash VARCHAR(255) NOT NULL,
+        role VARCHAR(20) NOT NULL DEFAULT 'admin',
+        is_active TINYINT(1) NOT NULL DEFAULT 1,
+        last_login DATETIME NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+  } catch (e) {
+    console.warn('ensureAdminUsersTable warning:', e);
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const { username, email, password, confirmPassword, registerKey } = await request.json();
+
+    await ensureAdminUsersTable();
 
     // ── Validasi input ────────────────────────────────────────────
     if (!username || !email || !password || !confirmPassword || !registerKey) {
