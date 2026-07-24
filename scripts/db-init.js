@@ -236,6 +236,19 @@ async function main() {
     )
   `);
 
+  console.log('Membuat tabel `purchases`...');
+  await connection.query(`
+    CREATE TABLE IF NOT EXISTS purchases (
+      id VARCHAR(50) PRIMARY KEY,
+      productId INT NOT NULL,
+      walletAddress VARCHAR(100) NOT NULL,
+      txHash VARCHAR(100) NULL,
+      createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (productId) REFERENCES products(id) ON DELETE CASCADE,
+      UNIQUE KEY unique_purchase (productId, walletAddress)
+    )
+  `);
+
   // Seeding Products
   console.log('Memasukkan data produk...');
   for (const p of initialProducts) {

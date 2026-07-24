@@ -22,6 +22,22 @@ async function validateAdminSession(): Promise<boolean> {
   } catch (e) {
     return false;
   }
+async function ensurePurchasesTable() {
+  try {
+    await executeQuery(`
+      CREATE TABLE IF NOT EXISTS purchases (
+        id VARCHAR(50) PRIMARY KEY,
+        productId INT NOT NULL,
+        walletAddress VARCHAR(100) NOT NULL,
+        txHash VARCHAR(100) NULL,
+        createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (productId) REFERENCES products(id) ON DELETE CASCADE,
+        UNIQUE KEY unique_purchase (productId, walletAddress)
+      )
+    `);
+  } catch (e) {
+    console.warn('ensurePurchasesTable warning:', e);
+  }
 }
 
 // GET all reviews with product titles
@@ -33,6 +49,8 @@ export async function GET() {
         { status: 401 }
       );
     }
+
+    await ensurePurchasesTable();
 
     const reviews = await executeQuery<any[]>(
       `SELECT r.id, r.productId, r.userId, r.userName, r.rating, r.comment, r.createdAt, p.title as productTitle, pu.txHash 
