@@ -135,7 +135,7 @@ Buka [http://localhost:3000](http://localhost:3000) di browser Anda.
 
 ## 👨‍💻 Author & Creator
 
-* **Developer:** [Nama Anda](https://github.com/username-anda)
+* **Developer:** [Nama Anda](https://github.com/B4tra)
 * **Contract Deployer Wallet:** `0x47a...6dbd5`
 * **License:** [MIT License](LICENSE)
 
